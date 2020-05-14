@@ -7,13 +7,20 @@ using Microsoft.MixedReality.Toolkit.UI;
 
 namespace Microsoft.MixedReality.Toolkit.Inspectors
 {
-    [CustomEditor(typeof(ButtonConfigHelper))]
+    [CustomEditor(typeof(ButtonConfigHelper)), CanEditMultipleObjects]
     public class ButtonConfigHelperInspector : UnityEditor.Editor
     {
-        const string LabelFoldoutKey = "MRTK.ButtonConfigHelper.Label";
-        const string BasicEventsFoldoutKey = "MRTK.ButtonConfigHelper.BasicEvents";
-        const string IconFoldoutKey = "MRTK.ButtonConfigHelper.Icon";
-        const string ShowComponentsKey = "MRTK.ButtonConfigHelper.ShowComponents";
+        private const string LabelFoldoutKey = "MRTK.ButtonConfigHelper.Label";
+        private const string BasicEventsFoldoutKey = "MRTK.ButtonConfigHelper.BasicEvents";
+        private const string IconFoldoutKey = "MRTK.ButtonConfigHelper.Icon";
+        private const string ShowComponentsKey = "MRTK.ButtonConfigHelper.ShowComponents";
+
+        private const string generatedIconSetName = "CustomIconSet";
+        private const string customIconSetsFolderName = "CustomIconSets";
+        private const string customIconUpgradeMessage = "This button appears to use a custom icon material.\n\n" +
+            "You must upgrade this button for your custom icon to be visible. If this button is nested in a prefab, you may need to upgrade within that prefab to remove this message.\n\n" +
+            "You can upgrade ALL your buttons at once by using the Migration Tool and selecting the ButtonConfigHelperMigrationHandler type.";
+        private const string customIconSetCreatedMessage = "A new icon set has been created to hold your button's custom icons. It has been saved to:\n\n{0}";
 
         private SerializedProperty mainLabelTextProp;
         private SerializedProperty seeItSayItLabelProp;
@@ -35,7 +42,7 @@ namespace Microsoft.MixedReality.Toolkit.Inspectors
         private SerializedProperty iconQuadTextureNameIDProp;
         private SerializedProperty iconQuadTextureProp;
 
-        private ButtonConfigHelper cb;
+        private ButtonConfigHelper cb = null;
 
         private void OnEnable()
         {
@@ -68,6 +75,28 @@ namespace Microsoft.MixedReality.Toolkit.Inspectors
             bool basicEventsFoldout = SessionState.GetBool(BasicEventsFoldoutKey, true);
             bool iconFoldout = SessionState.GetBool(IconFoldoutKey, true);
             bool showComponents = SessionState.GetBool(ShowComponentsKey, false);
+
+            if (cb.EditorCheckForCustomIcon())
+            {
+                using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+                {
+                    EditorGUILayout.LabelField("Custom Icon Migration", EditorStyles.boldLabel);
+                    EditorGUILayout.HelpBox(customIconUpgradeMessage, MessageType.Error);
+
+                    using (new EditorGUILayout.HorizontalScope())
+                    {
+                        if (GUILayout.Button("Upgrade this button"))
+                        {
+                            cb.EditorUpgradeCustomIcon();
+                        }
+
+                        if (GUILayout.Button("Use migration tool to upgrade all buttons"))
+                        {
+                            EditorApplication.ExecuteMenuItem("Mixed Reality Toolkit/Utilities/Migration Window");
+                        }
+                    }
+                }
+            }
 
             showComponents = EditorGUILayout.Toggle("Show Component References", showComponents);
 
