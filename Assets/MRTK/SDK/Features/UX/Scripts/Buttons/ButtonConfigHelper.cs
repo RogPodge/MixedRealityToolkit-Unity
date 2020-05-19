@@ -553,9 +553,12 @@ namespace Microsoft.MixedReality.Toolkit.UI
                 // If the custom material shader is different from the default material, don't alter the material
                 if (targetQuadMaterial.shader.name == defaultButtonQuadMaterial.shader.name)
                 {   // If the custom material shader is the same, revert any prefab overrides
-                    SerializedObject iconQuadRendererObject = new SerializedObject(iconQuadRenderer);
-                    SerializedProperty materialsProp = iconQuadRendererObject.FindProperty("m_Materials");
-                    PrefabUtility.RevertPropertyOverride(materialsProp, InteractionMode.AutomatedAction);
+                    if (!PrefabUtility.IsPartOfPrefabInstance(iconQuadRenderer))
+                    {
+                        SerializedObject iconQuadRendererObject = new SerializedObject(iconQuadRenderer);
+                        SerializedProperty materialsProp = iconQuadRendererObject.FindProperty("m_Materials");
+                        PrefabUtility.RevertPropertyOverride(materialsProp, InteractionMode.AutomatedAction);
+                    }
                 }
             }
             catch (System.Exception e)
@@ -575,6 +578,30 @@ namespace Microsoft.MixedReality.Toolkit.UI
                 Selection.activeObject = targetIconSet;
                 EditorGUIUtility.PingObject(targetIconSet);
             }
+        }
+
+        private void EditorPreserveCustomIcon()
+        {
+            SerializedObject configObject = new SerializedObject(this);
+            SerializedProperty iconQuadTextureProp = configObject.FindProperty("iconQuadTexture");
+
+            iconQuadTextureProp.objectReferenceValue = iconQuadRenderer.sharedMaterial.mainTexture;
+            configObject.ApplyModifiedProperties();
+        }
+
+        public void EditorSetDefaultIconSet(ButtonIconSet iconSet)
+        {
+            defaultIconSet = iconSet;
+        }
+
+        public void EditorSetDefaultQuadMaterial(Material mat)
+        {
+            defaultButtonQuadMaterial = mat;
+        }
+
+        public void EditorSetIconQuadRenderer(MeshRenderer renderer)
+        {
+            iconQuadRenderer = renderer;
         }
 #endif
     }

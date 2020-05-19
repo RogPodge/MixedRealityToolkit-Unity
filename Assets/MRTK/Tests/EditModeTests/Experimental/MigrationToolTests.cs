@@ -24,6 +24,8 @@ namespace Microsoft.MixedReality.Toolkit.Tests.EditMode
         private readonly string scenePath = "Assets/_migration.unity";
         private readonly string prefabPath = "Assets/_migration.prefab";
 
+        public ButtonIconSet defaultIconSet;
+
         private struct MigrationTypes
         {
             public Type oldType;
@@ -93,6 +95,33 @@ namespace Microsoft.MixedReality.Toolkit.Tests.EditMode
                 }
             }
             AssetDatabase.Refresh();
+        }
+
+        /// <summary>
+        /// Tests that the Button Migration tool works properly
+        /// </summary>
+        [Test]
+        public void ButtonMigrationTest()
+        {
+            Type migrationHandlerType = typeof(ButtonConfigHelperMigrationHandler);
+            Material testMat = Resources.Load<Material>("Assets/MRTK/SDK/Features/UX/Interactable/Materials/HolographicButtonIconHome.mat");
+
+            GameObject buttonGameObject = SetUpGameObjectWithComponentOfType(typeof(ButtonConfigHelper));
+            GameObject buttonQuad = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            buttonQuad.transform.parent = buttonGameObject.transform;
+            buttonQuad.GetComponent<MeshRenderer>().material = testMat;
+
+            ButtonConfigHelper buttonConfig = buttonGameObject.GetComponent<ButtonConfigHelper>();
+
+            ButtonIconSet testIconSet = new ButtonIconSet();
+
+            buttonConfig.IconSet = testIconSet;
+            buttonConfig.EditorSetDefaultIconSet(testIconSet);
+            buttonConfig.IconStyle = ButtonIconStyle.Quad;
+            buttonConfig.EditorSetIconQuadRenderer(buttonQuad.GetComponent<MeshRenderer>());
+
+            migrationTool.TryAddObjectForMigration(migrationHandlerType, buttonGameObject);
+            Assert.IsTrue(migrationTool.MigrateSelection(migrationHandlerType, false));
         }
 
         /// <summary>
