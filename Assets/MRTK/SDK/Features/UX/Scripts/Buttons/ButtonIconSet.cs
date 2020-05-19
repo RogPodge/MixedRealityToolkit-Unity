@@ -341,10 +341,11 @@ namespace Microsoft.MixedReality.Toolkit.UI
         /// Draws a selectable grid of texture icons.
         /// </summary>
         /// <returns>True if a new icon was selected.</returns>
-        public bool EditorDrawQuadIconSelector(Texture currentTexture, out Texture newTexture, int indentLevel = 0)
+        public bool EditorDrawQuadIconSelector(Texture currentTexture, out bool foundTexture, out Texture newTexture, int indentLevel = 0)
         {
             newTexture = null;
             int currentSelection = -1;
+            foundTexture = false;
 
             for (int i = 0; i < quadIcons.Length; i++)
             {
@@ -365,9 +366,13 @@ namespace Microsoft.MixedReality.Toolkit.UI
                 var maxWidth = GUILayout.MaxWidth(maxButtonSize * maxButtonsPerColumn);
                 int newSelection = GUILayout.SelectionGrid(currentSelection, quadIcons, maxButtonsPerColumn, maxHeight, maxWidth);
 #endif
-                if (newSelection >= 0 && newSelection != currentSelection)
+                if (newSelection >= 0)
                 {
-                    newTexture = quadIcons[newSelection];
+                    foundTexture = true;
+                    if (newSelection != currentSelection)
+                    {
+                        newTexture = quadIcons[newSelection];
+                    }
                 }
             }
 

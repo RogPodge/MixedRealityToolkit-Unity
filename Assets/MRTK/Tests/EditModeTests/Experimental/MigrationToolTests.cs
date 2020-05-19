@@ -104,7 +104,8 @@ namespace Microsoft.MixedReality.Toolkit.Tests.EditMode
         public void ButtonMigrationTest()
         {
             Type migrationHandlerType = typeof(ButtonConfigHelperMigrationHandler);
-            Material testMat = Resources.Load<Material>("Assets/MRTK/SDK/Features/UX/Interactable/Materials/HolographicButtonIconHome.mat");
+            Material testMat = (Material)AssetDatabase.LoadAssetAtPath("Assets/MRTK/SDK/Features/UX/Interactable/Materials/HolographicButtonIconHome.mat", typeof(Material));
+            Material defaultTestMat = (Material)AssetDatabase.LoadAssetAtPath("Assets/MRTK/SDK/Features/UX/Interactable/Materials/HolographicButtonIconStar.mat", typeof(Material));
 
             GameObject buttonGameObject = SetUpGameObjectWithComponentOfType(typeof(ButtonConfigHelper));
             GameObject buttonQuad = GameObject.CreatePrimitive(PrimitiveType.Quad);
@@ -116,8 +117,9 @@ namespace Microsoft.MixedReality.Toolkit.Tests.EditMode
             ButtonIconSet testIconSet = new ButtonIconSet();
 
             buttonConfig.IconSet = testIconSet;
-            buttonConfig.EditorSetDefaultIconSet(testIconSet);
             buttonConfig.IconStyle = ButtonIconStyle.Quad;
+            buttonConfig.EditorSetDefaultIconSet(testIconSet);
+            buttonConfig.EditorSetDefaultQuadMaterial(defaultTestMat);
             buttonConfig.EditorSetIconQuadRenderer(buttonQuad.GetComponent<MeshRenderer>());
 
             migrationTool.TryAddObjectForMigration(migrationHandlerType, buttonGameObject);
