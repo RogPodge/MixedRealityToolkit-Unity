@@ -82,7 +82,7 @@ namespace Microsoft.MixedReality.Toolkit.Experimental.UI.BoundsControl
         private Vector3[] edgeCenters = new Vector3[NumEdges];
         private CardinalAxisType[] edgeAxes;
 
-        internal int GetRotationHandleIdx(Transform handle)
+        internal int GetRotationHandleIdx(HandlesVisuals handle)
         {
             for (int i = 0; i < handles.Count; ++i)
             {
@@ -107,7 +107,7 @@ namespace Microsoft.MixedReality.Toolkit.Experimental.UI.BoundsControl
             return edgeAxes[index];
         }
 
-        internal CardinalAxisType GetAxisType(Transform handle)
+        internal CardinalAxisType GetAxisType(HandlesVisuals handle)
         {
             int index = GetRotationHandleIdx(handle);
             return GetAxisType(index);
@@ -117,7 +117,7 @@ namespace Microsoft.MixedReality.Toolkit.Experimental.UI.BoundsControl
         {
             for (int i = 0; i < handles.Count; ++i)
             {
-                handles[i].position = GetEdgeCenter(i);
+                handles[i].transform.position = GetEdgeCenter(i);
             }
         }
 
@@ -164,7 +164,7 @@ namespace Microsoft.MixedReality.Toolkit.Experimental.UI.BoundsControl
                 {
                     for (int i = 0; i < flattenedHandles.Length; ++i)
                     {
-                        handles[flattenedHandles[i]].gameObject.SetActive(false);
+                        handles[flattenedHandles[i]].gameObject.SetActive(handles[flattenedHandles[i]].inProximity);
                     }
                 }
             }
@@ -193,7 +193,7 @@ namespace Microsoft.MixedReality.Toolkit.Experimental.UI.BoundsControl
                 VisualUtils.AddComponentsToAffordance(midpoint, new Bounds(midpointBounds.center * invScale, midpointBounds.size * invScale),
                     config.RotationHandlePrefabColliderType, CursorContextInfo.CursorAction.Rotate, config.ColliderPadding, parent, config.DrawTetherWhenManipulating);
 
-                handles.Add(midpoint.transform);
+                handles.Add(midpoint.GetComponent<HandlesVisuals>());
             }
 
             VisualUtils.HandleIgnoreCollider(config.HandlesIgnoreCollider, handles);
@@ -206,7 +206,7 @@ namespace Microsoft.MixedReality.Toolkit.Experimental.UI.BoundsControl
             for (int i = 0; i < handles.Count; ++i)
             {
                 // get parent of visual
-                Transform obsoleteChild = handles[i].Find("visuals");
+                Transform obsoleteChild = handles[i].transform.Find("visuals");
                 if (obsoleteChild)
                 {
                     // get old child and remove it
@@ -228,7 +228,7 @@ namespace Microsoft.MixedReality.Toolkit.Experimental.UI.BoundsControl
             objectsChangedEvent.Invoke(this);
         }
 
-        protected override void UpdateColliderBounds(Transform handle, Vector3 visualSize)
+        protected override void UpdateColliderBounds(HandlesVisuals handle, Vector3 visualSize)
         {
             var invScale = visualSize.x == 0.0f ? 0.0f : config.HandleSize / visualSize.x;
             GetVisual(handle).transform.localScale = new Vector3(invScale, invScale, invScale);
@@ -292,13 +292,14 @@ namespace Microsoft.MixedReality.Toolkit.Experimental.UI.BoundsControl
         }
 
         #region BoundsControlHandlerBase 
-        internal override bool IsVisible(Transform handle)
+        internal override bool IsVisible(HandlesVisuals handle)
         {
             CardinalAxisType axisType = GetAxisType(handle);
-            return IsActive &&
+            return handle.inProximity || 
+                (IsActive &&
                 ((axisType == CardinalAxisType.X && config.ShowRotationHandleForX) ||
                 (axisType == CardinalAxisType.Y && config.ShowRotationHandleForY) ||
-                (axisType == CardinalAxisType.Z && config.ShowRotationHandleForZ));
+                (axisType == CardinalAxisType.Z && config.ShowRotationHandleForZ)));
         }
 
         internal override HandleType GetHandleType()
@@ -306,10 +307,10 @@ namespace Microsoft.MixedReality.Toolkit.Experimental.UI.BoundsControl
             return HandleType.Rotation;
         }
 
-        protected override Transform GetVisual(Transform handle)
+        protected override Transform GetVisual(HandlesVisuals handle)
         {
             // visual is first child 
-            Transform childTransform = handle.GetChild(0);
+            Transform childTransform = handle.transform.GetChild(0);
             if (childTransform != null && childTransform.name == "visuals")
             {
                 return childTransform;

@@ -43,7 +43,7 @@ namespace Microsoft.MixedReality.Toolkit.Experimental.UI.BoundsControl
         {
             for (int i = 0; i < handles.Count; ++i)
             {
-                handles[i].position = boundsCorners[i];
+                handles[i].transform.position = boundsCorners[i];
             }
         }
 
@@ -74,7 +74,7 @@ namespace Microsoft.MixedReality.Toolkit.Experimental.UI.BoundsControl
                 var invScale = visualBounds.size.x == 0.0f ? 0.0f : config.HandleSize / visualBounds.size.x;
                 VisualUtils.AddComponentsToAffordance(corner, new Bounds(visualBounds.center * invScale, visualBounds.size * invScale),
                     HandlePrefabCollider.Box, CursorContextInfo.CursorAction.Scale, config.ColliderPadding, parent, config.DrawTetherWhenManipulating);
-                handles.Add(corner.transform);
+                handles.Add(corner.GetComponent<HandlesVisuals>());
             }
 
             VisualUtils.HandleIgnoreCollider(config.HandlesIgnoreCollider, handles);
@@ -86,7 +86,7 @@ namespace Microsoft.MixedReality.Toolkit.Experimental.UI.BoundsControl
             for (int i = 0; i < handles.Count; ++i)
             {
                 // get parent of visual
-                Transform visualsScaleParent = handles[i].Find("visualsScale");
+                Transform visualsScaleParent = handles[i].transform.Find("visualsScale");
                 if (visualsScaleParent)
                 {
                     // get old child and remove it
@@ -112,7 +112,7 @@ namespace Microsoft.MixedReality.Toolkit.Experimental.UI.BoundsControl
             objectsChangedEvent.Invoke(this);
         }
 
-        protected override void UpdateColliderBounds(Transform handle, Vector3 visualSize)
+        protected override void UpdateColliderBounds(HandlesVisuals handle, Vector3 visualSize)
         {
             var invScale = visualSize.x == 0.0f ? 0.0f : config.HandleSize / visualSize.x;
             GetVisual(handle).transform.localScale = new Vector3(invScale, invScale, invScale);
@@ -183,9 +183,9 @@ namespace Microsoft.MixedReality.Toolkit.Experimental.UI.BoundsControl
         }
 
         #region BoundsControlHandlerBase
-        protected override Transform GetVisual(Transform handle)
+        protected override Transform GetVisual(HandlesVisuals handle)
         {
-            Transform visual = handle.GetChild(0)?.GetChild(0);
+            Transform visual = handle.transform.GetChild(0)?.GetChild(0);
             if (visual != null && visual.name == "visuals")
             {
                 return visual;
@@ -194,9 +194,9 @@ namespace Microsoft.MixedReality.Toolkit.Experimental.UI.BoundsControl
             return null;
         }
 
-        internal override bool IsVisible(Transform handle)
+        internal override bool IsVisible(HandlesVisuals handle)
         {
-            return IsActive;
+            return handle.inProximity || IsActive;
         }
 
         internal override HandleType GetHandleType()

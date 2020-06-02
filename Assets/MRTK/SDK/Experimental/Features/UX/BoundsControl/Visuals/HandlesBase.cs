@@ -77,7 +77,7 @@ namespace Microsoft.MixedReality.Toolkit.Experimental.UI.BoundsControl
             }
         }
 
-        protected abstract void UpdateColliderBounds(Transform handle, Vector3 visualSize);
+        protected abstract void UpdateColliderBounds(HandlesVisuals handle, Vector3 visualSize);
         protected abstract void RecreateVisuals();
 
         protected void ResetHandles()
@@ -97,21 +97,21 @@ namespace Microsoft.MixedReality.Toolkit.Experimental.UI.BoundsControl
             highlightedHandle = null;
         }
 
-        internal abstract bool IsVisible(Transform handle);
+        internal abstract bool IsVisible(HandlesVisuals handle);
 
 
-        internal protected List<Transform> handles = new List<Transform>();
-        private Transform highlightedHandle = null;
+        internal protected List<HandlesVisuals> handles = new List<HandlesVisuals>();
+        private HandlesVisuals highlightedHandle = null;
 
         ProximityObjectsChangedEvent IProximityEffectObjectProvider.ProximityObjectsChanged => objectsChangedEvent;
         protected ProximityObjectsChangedEvent objectsChangedEvent = new ProximityObjectsChangedEvent();
 
-        public IReadOnlyList<Transform> Handles
+        public IReadOnlyList<HandlesVisuals> Handles
         {
             get { return handles; }
         }
 
-        internal void SetHighlighted(Transform handleToHighlight)
+        internal void SetHighlighted(HandlesVisuals handleToHighlight)
         {
             // turn off all handles that aren't the handle we want to highlight
             if (handles != null)
@@ -135,16 +135,16 @@ namespace Microsoft.MixedReality.Toolkit.Experimental.UI.BoundsControl
         {
             if (handles != null)
             {
-                foreach (Transform transform in handles)
+                foreach (HandlesVisuals visual in handles)
                 {
-                    GameObject.Destroy(transform.gameObject);
+                    GameObject.Destroy(visual.gameObject);
                 }
 
                 handles.Clear();
             }
         }
 
-        internal bool IsHandleType(Transform handle)
+        internal bool IsHandleType(HandlesVisuals handle)
         {
             for (int i = 0; i < handles.Count; ++i)
             {
@@ -163,7 +163,7 @@ namespace Microsoft.MixedReality.Toolkit.Experimental.UI.BoundsControl
             return HandleType.None;
         }
 
-        protected abstract Transform GetVisual(Transform handle);
+        protected abstract Transform GetVisual(HandlesVisuals handle);
 
         protected void UpdateBaseMaterial()
         {

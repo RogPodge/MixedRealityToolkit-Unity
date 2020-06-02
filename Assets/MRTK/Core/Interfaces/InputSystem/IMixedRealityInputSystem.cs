@@ -204,6 +204,20 @@ namespace Microsoft.MixedReality.Toolkit.Input
         /// <param name="unfocusedObject">The <see href="https://docs.unity3d.com/ScriptReference/GameObject.html">GameObject</see> that the pointer has exited focus on.</param>
         void RaiseFocusExit(IMixedRealityPointer pointer, GameObject unfocusedObject);
 
+        /// <summary>
+        /// Raise the focus enter event.
+        /// </summary>
+        /// <param name="pointer">The pointer that has focus.</param>
+        /// <param name="proximityObject">The <see href="https://docs.unity3d.com/ScriptReference/GameObject.html">GameObject</see> that the pointer has entered a proximity range.</param>
+        void RaiseProximityEnter(IMixedRealityPointer pointer, GameObject proximityEnteredObject);
+
+        /// <summary>
+        /// Raise the focus exit event.
+        /// </summary>
+        /// <param name="pointer">The pointer that has lost focus.</param>
+        /// <param name="unfocusedObject">The <see href="https://docs.unity3d.com/ScriptReference/GameObject.html">GameObject</see> that the pointer has exited a proximity range.</param>
+        void RaiseProximityExit(IMixedRealityPointer pointer, GameObject proximityExitedObject);
+
         #endregion Focus Events
 
         #region Pointers

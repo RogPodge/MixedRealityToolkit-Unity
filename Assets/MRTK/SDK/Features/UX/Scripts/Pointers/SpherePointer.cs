@@ -3,6 +3,8 @@
 
 using Microsoft.MixedReality.Toolkit.Physics;
 using Microsoft.MixedReality.Toolkit.Utilities;
+using System.Collections.Generic;
+using System.Linq;
 using Unity.Profiling;
 using UnityEngine;
 
@@ -166,8 +168,8 @@ namespace Microsoft.MixedReality.Toolkit.Input
 
         private void Awake()
         {
-            queryBufferNearObjectRadius = new SpherePointerQueryInfo(sceneQueryBufferSize, Mathf.Max(NearObjectRadius, SphereCastRadius), NearObjectSectorAngle, PullbackDistance);
-            queryBufferInteractionRadius = new SpherePointerQueryInfo(sceneQueryBufferSize, SphereCastRadius, 360.0f, 0.0f);
+            queryBufferNearObjectRadius = new SpherePointerQueryInfo(this, sceneQueryBufferSize, Mathf.Max(NearObjectRadius, SphereCastRadius), NearObjectSectorAngle, PullbackDistance);
+            queryBufferInteractionRadius = new SpherePointerQueryInfo(this, sceneQueryBufferSize, SphereCastRadius, 360.0f, 0.0f);
         }
 
         private static readonly ProfilerMarker OnPreSceneQueryPerfMarker = new ProfilerMarker("[MRTK] SpherePointer.OnPreSceneQuery");
@@ -354,7 +356,21 @@ namespace Microsoft.MixedReality.Toolkit.Input
             /// </summary>
             public float queryAngle;
 
-            
+            /// <summary>
+            /// Sphere pointer that calls this query
+            /// </summary>
+            private SpherePointer pointer;
+
+            /// <summary>
+            /// The set of grabbables currently in the query radius
+            /// </summary>
+            private HashSet<NearInteractionGrabbable> previousGrabbables;
+
+            /// <summary>
+            /// The set of grabbables currently in the query radius
+            /// </summary>
+            private HashSet<NearInteractionGrabbable> activeGrabbables;
+
             /// <summary>
             /// The grabbable near the QueryRadius. 
             /// </summary>
@@ -367,13 +383,17 @@ namespace Microsoft.MixedReality.Toolkit.Input
             /// <param name="radius">Radius of the sphere </param>
             /// <param name="angle">Angle range of the forward axis to query in degrees. Angle > 360 means the entire sphere is queried</param>
             /// <param name="minDistance">"Minimum required distance to be registered in the query"</param>
-            public SpherePointerQueryInfo(int bufferSize, float radius, float angle, float minDistance)
+            public SpherePointerQueryInfo(SpherePointer spherePointer, int bufferSize, float radius, float angle, float minDistance)
             {
+                pointer = spherePointer;
                 numColliders = 0;
                 queryBuffer = new Collider[bufferSize];
                 queryRadius = radius;
                 queryMinDistance = minDistance;
                 queryAngle = angle * 0.5f;
+
+                previousGrabbables = new HashSet<NearInteractionGrabbable>();
+                activeGrabbables = new HashSet<NearInteractionGrabbable>();
             }
 
             private static readonly ProfilerMarker TryUpdateQueryBufferForLayerMaskPerfMarker = new ProfilerMarker("[MRTK] SpherePointerQueryInfo.TryUpdateQueryBufferForLayerMask");
@@ -393,6 +413,8 @@ namespace Microsoft.MixedReality.Toolkit.Input
             {
                 using (TryUpdateQueryBufferForLayerMaskPerfMarker.Auto())
                 {
+                    bool hasGrabbableObject = false;
+                    activeGrabbables.Clear();
                     grabbable = null;
                     numColliders = UnityEngine.Physics.OverlapSphereNonAlloc(
                         pointerPosition,
@@ -443,11 +465,23 @@ namespace Microsoft.MixedReality.Toolkit.Input
                         
                         if (grabbable != null)
                         {
-                            return true;
+                            if(!activeGrabbables.Contains(grabbable))
+                                activeGrabbables.Add(grabbable);
+                            hasGrabbableObject = true;
                         }
                     }
 
-                    return false;
+                    IEnumerable<NearInteractionGrabbable> enteredGrabbables = activeGrabbables.Except(previousGrabbables);
+                    IEnumerable<NearInteractionGrabbable> exitedGrabbables = previousGrabbables.Except(activeGrabbables);
+                    Debug.Log("entered:" + enteredGrabbables.Count());
+                    Debug.Log("exited:" + exitedGrabbables.Count());
+
+                    previousGrabbables = new HashSet<NearInteractionGrabbable>(activeGrabbables);
+
+                    enteredGrabbables.ToList().ForEach(x => CoreServices.InputSystem?.RaiseProximityEnter(pointer, x.gameObject));
+                    exitedGrabbables.ToList().ForEach(x => CoreServices.InputSystem?.RaiseProximityExit(pointer, x.gameObject));
+
+                    return hasGrabbableObject;
                 }
             }
 

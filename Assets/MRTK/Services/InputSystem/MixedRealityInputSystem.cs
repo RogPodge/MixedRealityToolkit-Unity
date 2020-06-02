@@ -99,6 +99,7 @@ namespace Microsoft.MixedReality.Toolkit.Input
         private SourcePoseEventData<MixedRealityPose> sourcePoseEventData;
 
         private FocusEventData focusEventData;
+        private ProximityEventData proximityEventData;
 
         private InputEventData inputEventData;
         private MixedRealityPointerEventData pointerEventData;
@@ -215,6 +216,7 @@ namespace Microsoft.MixedReality.Toolkit.Input
             sourcePoseEventData = new SourcePoseEventData<MixedRealityPose>(EventSystem.current);
 
             focusEventData = new FocusEventData(EventSystem.current);
+            proximityEventData = new ProximityEventData(EventSystem.current);
 
             inputEventData = new InputEventData(EventSystem.current);
             pointerEventData = new MixedRealityPointerEventData(EventSystem.current);
@@ -500,6 +502,27 @@ namespace Microsoft.MixedReality.Toolkit.Input
             }
         }
 
+        private static readonly ProfilerMarker HandleProximityEventPerfMarker = new ProfilerMarker("[MRTK] MixedRealityInputSystem.HandleProximityEvent");
+
+        /// <summary>
+        /// Handles focus enter and exit
+        /// We send the focus event to all global listeners and the actual focus change receiver. the use flag is completely ignored to avoid any interception.
+        /// </summary>
+        private void HandleProximityEvent(GameObject eventTarget, ProximityEventData proximityEventData, ExecuteEvents.EventFunction<IMixedRealityProximityHandler> eventHandler)
+        {
+            using (HandleProximityEventPerfMarker.Auto())
+            {
+                Debug.Assert(proximityEventData != null);
+
+                DispatchEventToGlobalListeners(proximityEventData, eventHandler);
+
+                using (ExecuteHierarchyPerfMarker.Auto())
+                {
+                    ExecuteEvents.ExecuteHierarchy(eventTarget, proximityEventData, eventHandler);
+                }
+            }
+        }
+
         private static readonly ProfilerMarker HandlePointerEventPerfMarker = new ProfilerMarker("[MRTK] MixedRealityInputSystem.HandlePointerEvent");
 
         /// <summary>
@@ -570,6 +593,21 @@ namespace Microsoft.MixedReality.Toolkit.Input
 
                 // Send the event to global listeners
                 base.HandleEvent(focusEventData, eventHandler);
+            }
+        }
+
+        /// <summary>
+        /// Dispatch a focus event to all global event listeners
+        /// </summary>
+        private void DispatchEventToGlobalListeners<T>(ProximityEventData proximityEventData, ExecuteEvents.EventFunction<T> eventHandler) where T : IEventSystemHandler
+        {
+            using (DispatchEventToGlobalListenersPerfMarker.Auto())
+            {
+                Debug.Assert(proximityEventData != null);
+                Debug.Assert(!proximityEventData.used);
+
+                // Send the event to global listeners
+                base.HandleEvent(proximityEventData, eventHandler);
             }
         }
 
@@ -1098,12 +1136,47 @@ namespace Microsoft.MixedReality.Toolkit.Input
                 HandleFocusEvent(unfocusedObject, focusEventData, OnFocusExitEventHandler);
             }
         }
-
         private static readonly ExecuteEvents.EventFunction<IMixedRealityFocusHandler> OnFocusExitEventHandler =
-                delegate (IMixedRealityFocusHandler handler, BaseEventData eventData)
+            delegate (IMixedRealityFocusHandler handler, BaseEventData eventData)
+            {
+                var casted = ExecuteEvents.ValidateEventData<FocusEventData>(eventData);
+                handler.OnFocusExit(casted);
+            };
+
+        private static readonly ProfilerMarker RaiseProximityEnterPerfMarker = new ProfilerMarker("[MRTK] MixedRealityInputSystem.RaiseProximityEnter");
+        public void RaiseProximityEnter(IMixedRealityPointer pointer, GameObject proximityEnteredObject)
+        {
+            using (RaiseProximityEnterPerfMarker.Auto())
+            {
+                proximityEventData.Initialize(pointer);
+
+                HandleProximityEvent(proximityEnteredObject, proximityEventData, OnProximityEnterEventHandler);
+            }
+        }
+
+        private static readonly ExecuteEvents.EventFunction<IMixedRealityProximityHandler> OnProximityEnterEventHandler =
+            delegate (IMixedRealityProximityHandler handler, BaseEventData eventData)
+            {
+                var casted = ExecuteEvents.ValidateEventData<ProximityEventData>(eventData);
+                handler.OnProximityEnter(casted);
+            };
+
+        private static readonly ProfilerMarker RaiseProximityExitPerfMarker = new ProfilerMarker("[MRTK] MixedRealityInputSystem.RaiseProximityExit");
+        public void RaiseProximityExit(IMixedRealityPointer pointer, GameObject proximityExitedObject)
+        {
+            using (RaiseProximityExitPerfMarker.Auto())
+            {
+                proximityEventData.Initialize(pointer);
+
+                HandleProximityEvent(proximityExitedObject, proximityEventData, OnProximityExitEventHandler);
+            }
+        }
+
+        private static readonly ExecuteEvents.EventFunction<IMixedRealityProximityHandler> OnProximityExitEventHandler =
+                delegate (IMixedRealityProximityHandler handler, BaseEventData eventData)
                 {
-                    var casted = ExecuteEvents.ValidateEventData<FocusEventData>(eventData);
-                    handler.OnFocusExit(casted);
+                    var casted = ExecuteEvents.ValidateEventData<ProximityEventData>(eventData);
+                    handler.OnProximityExit(casted);
                 };
 
         #endregion Focus Events
