@@ -416,6 +416,7 @@ namespace Microsoft.MixedReality.Toolkit.Input
                     bool hasGrabbableObject = false;
                     activeGrabbables.Clear();
                     grabbable = null;
+                    NearInteractionGrabbable currentGrabbable;
                     numColliders = UnityEngine.Physics.OverlapSphereNonAlloc(
                         pointerPosition,
                         queryRadius,
@@ -432,8 +433,8 @@ namespace Microsoft.MixedReality.Toolkit.Input
                     for (int i = 0; i < numColliders; i++)
                     {
                         Collider collider = queryBuffer[i];
-                        grabbable = collider.GetComponent<NearInteractionGrabbable>();
-                        if (grabbable != null)
+                        currentGrabbable = collider.GetComponent<NearInteractionGrabbable>();
+                        if (currentGrabbable != null)
                         {
                             if (ignoreCollidersNotInFOV)
                             {
@@ -442,7 +443,7 @@ namespace Microsoft.MixedReality.Toolkit.Input
                                     // Additional check: is grabbable in the camera frustrum
                                     // We do this so that if grabbable is not visible it is not accidentally grabbed
                                     // Also to not turn off the hand ray if hand is near a grabbable that's not actually visible
-                                    grabbable = null;
+                                    currentGrabbable = null;
                                 }
                             }
                         }
@@ -459,22 +460,24 @@ namespace Microsoft.MixedReality.Toolkit.Input
 
                         if (!pastMinDistance || !inAngle)
                         {
-                            grabbable = null;
+                            currentGrabbable = null;
                             continue;
                         }
                         
-                        if (grabbable != null)
+                        if (currentGrabbable != null)
                         {
-                            if(!activeGrabbables.Contains(grabbable))
-                                activeGrabbables.Add(grabbable);
+                            if(!activeGrabbables.Contains(currentGrabbable))
+                                activeGrabbables.Add(currentGrabbable);
+                            if(grabbable == null)
+                                grabbable = currentGrabbable;
                             hasGrabbableObject = true;
                         }
                     }
 
                     IEnumerable<NearInteractionGrabbable> enteredGrabbables = activeGrabbables.Except(previousGrabbables);
                     IEnumerable<NearInteractionGrabbable> exitedGrabbables = previousGrabbables.Except(activeGrabbables);
-                    Debug.Log("entered:" + enteredGrabbables.Count());
-                    Debug.Log("exited:" + exitedGrabbables.Count());
+                    //Debug.Log("entered:" + enteredGrabbables.Count());
+                    //Debug.Log("exited:" + exitedGrabbables.Count());
 
                     previousGrabbables = new HashSet<NearInteractionGrabbable>(activeGrabbables);
 

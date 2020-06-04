@@ -112,24 +112,25 @@ namespace Microsoft.MixedReality.Toolkit.Tests.Experimental
         /// Uses near interaction to scale the bounds control by directly grabbing corner
         /// </summary>
         [UnityTest]
-        public IEnumerator ScaleViaNearInteration()
+        public IEnumerator ScaleViaNearInteraction()
         {
             BoundsControl boundsControl = InstantiateSceneAndDefaultBoundsControl();
             yield return VerifyInitialBoundsCorrect(boundsControl);
-            boundsControl.BoundsControlActivation = BoundsControlActivationType.ActivateByProximityAndPointer;
             var inputSimulationService = PlayModeTestUtilities.GetInputSimulationService();
-            yield return PlayModeTestUtilities.WaitForEnterKey();
 
             // front right corner is corner 3
             var frontRightCornerPos = boundsControl.gameObject.transform.Find("rigRoot/corner_3").position;
 
 
             Vector3 initialHandPosition = new Vector3(0, 0, 0.5f);
+
             // This particular test is sensitive to the number of test frames, and is run at a slower pace.
             int numSteps = 30;
             var delta = new Vector3(0.1f, 0.1f, 0f);
             yield return PlayModeTestUtilities.ShowHand(Handedness.Right, inputSimulationService, ArticulatedHandPose.GestureId.OpenSteadyGrabPoint, initialHandPosition);
+
             yield return PlayModeTestUtilities.MoveHand(initialHandPosition, frontRightCornerPos, ArticulatedHandPose.GestureId.OpenSteadyGrabPoint, Handedness.Right, inputSimulationService, numSteps);
+
             yield return PlayModeTestUtilities.MoveHand(frontRightCornerPos, frontRightCornerPos + delta, ArticulatedHandPose.GestureId.Pinch, Handedness.Right, inputSimulationService, numSteps);
 
             var endBounds = boundsControl.GetComponent<BoxCollider>().bounds;
@@ -137,10 +138,6 @@ namespace Microsoft.MixedReality.Toolkit.Tests.Experimental
             Vector3 expectedSize = Vector3.one * .567f;
             TestUtilities.AssertAboutEqual(endBounds.center, expectedCenter, "endBounds incorrect center");
             TestUtilities.AssertAboutEqual(endBounds.size, expectedSize, "endBounds incorrect size");
-
-            GameObject.Destroy(boundsControl.gameObject);
-            // Wait for a frame to give Unity a change to actually destroy the object
-            yield return null;
         }
 
         /// <summary>
@@ -180,18 +177,17 @@ namespace Microsoft.MixedReality.Toolkit.Tests.Experimental
         public IEnumerator FlickeringBoundsTest()
         {
             BoundsControl boundsControl = InstantiateSceneAndDefaultBoundsControl();
-            yield return VerifyInitialBoundsCorrect(boundsControl);
             boundsControl.BoundsControlActivation = BoundsControlActivationType.ActivateByProximityAndPointer;
+            yield return VerifyInitialBoundsCorrect(boundsControl);
             var inputSimulationService = PlayModeTestUtilities.GetInputSimulationService();
 
             boundsControl.gameObject.transform.position = new Vector3(0, 0, 1.386f);
             boundsControl.gameObject.transform.rotation = Quaternion.Euler(0, 45.0f, 0);
             
             TestHand hand = new TestHand(Handedness.Left);
-            yield return hand.Show(new Vector3(0,0,1)); // Initially make sure that hand ray is pointed on cube surface so we won't go behind the cube with our ray
+            yield return hand.Show(new Vector3(0,0,1));
 
-            yield return PlayModeTestUtilities.WaitForEnterKey();
-            
+            yield return PlayModeTestUtilities.WaitForInputSystemUpdate();
 
             //Check for a few loops that the hand is not flickering between states
             int iterations = 15;
@@ -200,13 +196,10 @@ namespace Microsoft.MixedReality.Toolkit.Tests.Experimental
                 Assert.IsTrue(hand.GetPointer<SpherePointer>().IsNearObject);
                 yield return null;
             }
-
-            GameObject.Destroy(boundsControl.gameObject);
-            // Wait for a frame to give Unity a change to actually destroy the object
-            yield return null;
         }
 
         /// <summary>
+        /// Test bounds control rotation via far interaction
         /// Test bounds control rotation via far interaction
         /// Verifies gameobject has rotation in one axis only applied and no other transform changes happen during interaction
         /// </summary>
@@ -283,10 +276,6 @@ namespace Microsoft.MixedReality.Toolkit.Tests.Experimental
             Assert.IsTrue(angleDiff <= 1f, "cube didn't rotate as expected");
             TestUtilities.AssertAboutEqual(boundsControl.transform.position, expectedPosition, "cube moved while rotating");
             TestUtilities.AssertAboutEqual(boundsControl.transform.localScale, expectedSize, "cube scaled while rotating");
-
-            GameObject.Destroy(boundsControl.gameObject);
-            // Wait for a frame to give Unity a change to actually destroy the object
-            yield return null;
         }
 
         /// <summary>
@@ -707,11 +696,6 @@ namespace Microsoft.MixedReality.Toolkit.Tests.Experimental
             Vector3 expectedSize = Vector3.one * .567f;
             TestUtilities.AssertAboutEqual(endBounds.center, expectedCenter, "endBounds incorrect center");
             TestUtilities.AssertAboutEqual(endBounds.size, expectedSize, "endBounds incorrect size");
-
-            Object.Destroy(emptyGameObject);
-            Object.Destroy(cube);
-            // Wait for a frame to give Unity a change to actually destroy the object
-            yield return null;
         }
 
         /// <summary>
@@ -1159,6 +1143,7 @@ namespace Microsoft.MixedReality.Toolkit.Tests.Experimental
             yield return hand.MoveTo(cornerVisual.position);
             yield return hand.SetGesture(ArticulatedHandPose.GestureId.Pinch);
             yield return new WaitForFixedUpdate();
+
             Assert.AreEqual(boxVisual.GetComponent<Renderer>().material.color, testMaterialGrabbed.color, "box grabbed material wasn't applied to visual");
             // release handle
             yield return hand.SetGesture(ArticulatedHandPose.GestureId.OpenSteadyGrabPoint);
