@@ -14,11 +14,11 @@ namespace Microsoft.MixedReality.Toolkit.Experimental.UI.BoundsControl
     internal class VisualUtils
     {
 
-        internal static void HandleIgnoreCollider(Collider handlesIgnoreCollider, List<HandlesVisuals> handles, bool ignore = true)
+        internal static void HandleIgnoreCollider(Collider handlesIgnoreCollider, List<HandleVisuals> handles, bool ignore = true)
         {
             if (handlesIgnoreCollider != null)
             {
-                foreach (HandlesVisuals handle in handles)
+                foreach (HandleVisuals handle in handles)
                 {
                     Collider[] colliders = handle.gameObject.GetComponents<Collider>();
                     foreach (Collider collider in colliders)
@@ -94,7 +94,7 @@ namespace Microsoft.MixedReality.Toolkit.Experimental.UI.BoundsControl
             g.ShowTetherWhenManipulating = drawTetherWhenManipulating;
 
             // Make sure that the affordance has a visual controller for handling proximity effects
-            afford.AddComponent<HandlesVisuals>();
+            afford.AddComponent<HandleVisuals>();
 
             // Adds cursor context
             var contextInfo = afford.EnsureComponent<CursorContextInfo>();

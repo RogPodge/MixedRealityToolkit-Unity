@@ -772,7 +772,7 @@ namespace Microsoft.MixedReality.Toolkit.Experimental.UI.BoundsControl
             return colliderByTransform.Key != null;
         }
 
-        private HandleType GetHandleType(HandlesVisuals handle)
+        private HandleType GetHandleType(HandleVisuals handle)
         {
             if (rotationHandles.IsHandleType(handle))
             {
@@ -914,7 +914,7 @@ namespace Microsoft.MixedReality.Toolkit.Experimental.UI.BoundsControl
 
         }
 
-        private Vector3 GetRotationAxis(HandlesVisuals handle)
+        private Vector3 GetRotationAxis(HandleVisuals handle)
         {
             CardinalAxisType axisType = rotationHandles.GetAxisType(handle);
             if (axisType == CardinalAxisType.X)
@@ -1049,7 +1049,7 @@ namespace Microsoft.MixedReality.Toolkit.Experimental.UI.BoundsControl
             if (currentPointer == null && !eventData.used)
             {
                 GameObject grabbedHandle = eventData.Pointer.Result.CurrentPointerTarget;
-                HandlesVisuals grabbedHandleTransform = grabbedHandle.GetComponent<HandlesVisuals>();
+                HandleVisuals grabbedHandleTransform = grabbedHandle.GetComponent<HandleVisuals>();
                 currentHandleType = GetHandleType(grabbedHandleTransform);
                 if (currentHandleType != HandleType.None)
                 {
@@ -1151,7 +1151,7 @@ namespace Microsoft.MixedReality.Toolkit.Experimental.UI.BoundsControl
 
         #region BoundsControl Visuals Private Methods
 
-        private void SetHighlighted(HandlesVisuals activeHandle)
+        private void SetHighlighted(HandleVisuals activeHandle)
         {
             scaleHandles.SetHighlighted(activeHandle);
             rotationHandles.SetHighlighted(activeHandle);

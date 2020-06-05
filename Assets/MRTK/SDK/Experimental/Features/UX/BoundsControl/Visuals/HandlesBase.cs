@@ -77,16 +77,16 @@ namespace Microsoft.MixedReality.Toolkit.Experimental.UI.BoundsControl
             }
         }
 
-        protected abstract void UpdateColliderBounds(HandlesVisuals handle, Vector3 visualSize);
+        protected abstract void UpdateColliderBounds(HandleVisuals handle, Vector3 visualSize);
         protected abstract void RecreateVisuals();
 
         protected void ResetHandles()
         {
             if (handles != null)
             {
+                bool isVisible = handles.Exists(x => IsVisible(x));
                 for (int i = 0; i < handles.Count; ++i)
                 {
-                    bool isVisible = IsVisible(handles[i]);
                     handles[i].gameObject.SetActive(isVisible);
                     if (isVisible)
                     {
@@ -97,21 +97,21 @@ namespace Microsoft.MixedReality.Toolkit.Experimental.UI.BoundsControl
             highlightedHandle = null;
         }
 
-        internal abstract bool IsVisible(HandlesVisuals handle);
+        internal abstract bool IsVisible(HandleVisuals handle);
 
 
-        internal protected List<HandlesVisuals> handles = new List<HandlesVisuals>();
-        private HandlesVisuals highlightedHandle = null;
+        internal protected List<HandleVisuals> handles = new List<HandleVisuals>();
+        private HandleVisuals highlightedHandle = null;
 
         ProximityObjectsChangedEvent IProximityEffectObjectProvider.ProximityObjectsChanged => objectsChangedEvent;
         protected ProximityObjectsChangedEvent objectsChangedEvent = new ProximityObjectsChangedEvent();
 
-        public IReadOnlyList<HandlesVisuals> Handles
+        public IReadOnlyList<HandleVisuals> Handles
         {
             get { return handles; }
         }
 
-        internal void SetHighlighted(HandlesVisuals handleToHighlight)
+        internal void SetHighlighted(HandleVisuals handleToHighlight)
         {
             // turn off all handles that aren't the handle we want to highlight
             if (handles != null)
@@ -135,7 +135,7 @@ namespace Microsoft.MixedReality.Toolkit.Experimental.UI.BoundsControl
         {
             if (handles != null)
             {
-                foreach (HandlesVisuals visual in handles)
+                foreach (HandleVisuals visual in handles)
                 {
                     GameObject.Destroy(visual.gameObject);
                 }
@@ -144,7 +144,7 @@ namespace Microsoft.MixedReality.Toolkit.Experimental.UI.BoundsControl
             }
         }
 
-        internal bool IsHandleType(HandlesVisuals handle)
+        internal bool IsHandleType(HandleVisuals handle)
         {
             for (int i = 0; i < handles.Count; ++i)
             {
@@ -163,7 +163,7 @@ namespace Microsoft.MixedReality.Toolkit.Experimental.UI.BoundsControl
             return HandleType.None;
         }
 
-        protected abstract Transform GetVisual(HandlesVisuals handle);
+        protected abstract Transform GetVisual(HandleVisuals handle);
 
         protected void UpdateBaseMaterial()
         {
