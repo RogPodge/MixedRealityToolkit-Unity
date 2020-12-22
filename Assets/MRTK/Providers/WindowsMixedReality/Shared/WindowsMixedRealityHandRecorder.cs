@@ -37,6 +37,24 @@ namespace Microsoft.MixedReality.Toolkit.Input
         private Vector3 offset = Vector3.zero;
         private Handedness recordingHand = Handedness.None;
 
+        public KeyCode CaptureLeftHandRecordingKeyCode = KeyCode.Alpha9;
+        public KeyCode CaptureRightHandRecordingKeyCode = KeyCode.Alpha0;
+
+        public void Update()
+        {
+            if (UnityEngine.Input.GetKeyDown(CaptureLeftHandRecordingKeyCode))
+            {
+                RecordLeftHandStart();
+                RecordHandStop();
+            }
+
+            if (UnityEngine.Input.GetKeyDown(CaptureRightHandRecordingKeyCode))
+            {
+                RecordRightHandStart();
+                RecordHandStop();
+            }
+        }
+
         public void RecordLeftHandStart()
         {
             RecordHandStart(Handedness.Left);
@@ -80,7 +98,13 @@ namespace Microsoft.MixedReality.Toolkit.Input
                 writer.Write(data);
             }
 #else
-            Debug.Log($"{filename}: {data}");
+            //Debug.Log($"{filename}: {data}");
+            //string path = Path.Combine(Application.persistentDataPath, filename);
+            //using (TextWriter writer = File.CreateText(path))
+            //{
+            //    writer.Write(data);
+            //}
+            //Debug.Log(path);
 #endif
         }
     }
