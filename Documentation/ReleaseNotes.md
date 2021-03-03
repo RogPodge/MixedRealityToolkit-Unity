@@ -21,6 +21,18 @@ Initial support for Unity's OpenXR preview package and Microsoft's Mixed Reality
 >
 > Currently, it also only supports x64 and ARM64 builds.
 
+### Experimental Interactive Element + State Visualizer 
+
+Interactive Element is a simplified centralized entry point to the MRTK input system. It contains state management methods, event management and the state setting logic for Core Interaction States. For more information see [Interactive Element Documentation](README_InteractiveElement.md).
+
+![InteractiveElementAddCoreState](Images/InteractiveElement/InEditor/Gifs/InspectorHighlightEditor.gif)
+
+The State Visualizer is an animation component that depends on Interactive Element.  This component creates Animation Clips, sets keyframes and generates an Animator State Machine. For more information see [State Visualizer Documentation](README_InteractiveElement.md#state-visualizer-experimental)
+
+![FocusColorChange](Images/InteractiveElement/InEditor/Gifs/FocusColorChange.gif)
+
+Interactive Element and State Visualizer are experimental components.
+
 ### HP Motion Controllers now supported with MRTK
 
 Controllers for the HP Reverb G2 now work natively with MRTK.
@@ -32,6 +44,15 @@ articulated hands, make a gesture with your palm facing up with the index and th
 see our updated [Input Simulation Service documentation](InputSimulation/InputSimulationService.md#hand-gestures).
 
   ![Teleport Gesture](Images/ReleaseNotes/HandTeleport.gif)
+
+### Scene Understanding now available in MRTK as an experimental spatial awareness observer
+
+Experimental support of [Scene Understanding](https://docs.microsoft.com/en-us/windows/mixed-reality/scene-understanding) is introduced in MRTK 2.6. Users can incorporate the scene understanding capabilities of HoloLens 2 as a spatial awareness observer in MRTK based projects. Please read the [Scene Understanding documentation](SpatialAwareness/SceneUnderstanding.md) for more information.
+
+> [!IMPORTANT]
+> Scene Understanding is only supported on HoloLens 2 and Unity 2019.4 and higher.
+>
+> This feature requires the Scene Understanding package, which may not be available at the launch date of MRTK 2.6 but will be available soon after via the [Mixed Reality Feature Tool](https://aka.ms/MRFeatureTool). Please see [this issue](https://github.com/microsoft/MixedRealityToolkit-Unity/issues/9402) for updates on its availability.
 
 ### Runtime profile switching support
 
