@@ -6,8 +6,10 @@ using UnityEngine;
 
 namespace Microsoft.MixedReality.Toolkit.XRSDK.OpenXR
 {
+#if UNITY_EDITOR
     [CreateAssetMenu(menuName = "Mixed Reality/Toolkit/Providers/OpenXR/OpenXR Camera Settings Profile", fileName = "OpenXRCameraSettingsProfile", order = 100)]
     [MixedRealityServiceProfile(typeof(OpenXRCameraSettings))]
+#endif
     public class OpenXRCameraSettingsProfile : BaseCameraSettingsProfile
     {
         [SerializeField]

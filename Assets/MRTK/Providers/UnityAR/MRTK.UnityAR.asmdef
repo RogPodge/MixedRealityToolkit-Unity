@@ -4,6 +4,7 @@
         "Microsoft.MixedReality.Toolkit",
         "Microsoft.MixedReality.Toolkit.Async",
         "Unity.XR.ARFoundation",
+        "Microsoft.MixedReality.Toolkit.Providers.UnityAR.Profile",
         "UnityEngine.SpatialTracking"
     ],
     "includePlatforms": [

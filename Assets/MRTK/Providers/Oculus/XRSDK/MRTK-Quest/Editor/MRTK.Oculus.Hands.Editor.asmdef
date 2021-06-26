@@ -4,6 +4,7 @@
         "Microsoft.MixedReality.Toolkit",
         "Microsoft.MixedReality.Toolkit.Editor.Utilities",
         "Microsoft.MixedReality.Toolkit.Providers.XRSDK.Oculus",
+        "Microsoft.MixedReality.Toolkit.Providers.XRSDK.Oculus.Profile",
         "Oculus.VR.Editor"
     ],
     "includePlatforms": [

@@ -1,0 +1,19 @@
+{
+    "name": "Microsoft.MixedReality.Toolkit.Providers.OpenXR.Profile",
+    "references": [
+        "Microsoft.MixedReality.Toolkit",
+        "Microsoft.MixedReality.Toolkit.Providers.OpenXR"
+    ],
+    "defineConstraints": [
+        "UNITY_2020_2_OR_NEWER"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

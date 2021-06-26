@@ -9,8 +9,10 @@ namespace Microsoft.MixedReality.Toolkit.LeapMotion.Input
     /// The profile for the Leap Motion Device Manager. The settings for this profile can be viewed if the Leap Motion Device Manager input data provider is 
     /// added to the MRTK input configuration profile.
     /// </summary>
+#if UNITY_EDITOR
     [CreateAssetMenu(menuName = "Mixed Reality/Toolkit/Profiles/Mixed Reality Leap Motion Profile", fileName = "LeapMotionDeviceManagerProfile", order = 4)]
     [MixedRealityServiceProfile(typeof(LeapMotionDeviceManager))]
+#endif
     public class LeapMotionDeviceManagerProfile : BaseMixedRealityProfile
     {
         [Space(10)]

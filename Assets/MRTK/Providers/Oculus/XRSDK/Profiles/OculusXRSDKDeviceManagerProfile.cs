@@ -37,8 +37,10 @@ namespace Microsoft.MixedReality.Toolkit.XRSDK.Oculus.Input
     /// The profile for the Oculus XRSDK Device Manager. The settings for this profile can be viewed if the Leap Motion Device Manager input data provider is 
     /// added to the MRTK input configuration profile.
     /// </summary>
+#if UNITY_EDITOR
     [CreateAssetMenu(menuName = "Mixed Reality Toolkit/Profiles/Mixed Reality Oculus XR SDK Profile", fileName = "OculusXRSDKDeviceManagerProfile", order = 4)]
     [MixedRealityServiceProfile(typeof(OculusXRSDKDeviceManager))]
+#endif
     public class OculusXRSDKDeviceManagerProfile : BaseMixedRealityProfile
     {
         [Space(10)]
